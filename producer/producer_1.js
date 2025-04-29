@@ -4,7 +4,6 @@ require('dotenv').config();
 const serverCredentials = process.env.SERVER_CREDENTIALS;
 
 const rabbitmq_url = 'amqp://' + serverCredentials;
-const queue = 'calc_requests';
 const operations = ['add', 'sub', 'mul', 'div', 'all'];
 
 async function send() {
