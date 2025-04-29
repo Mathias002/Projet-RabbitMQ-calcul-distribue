@@ -1,6 +1,10 @@
 const ampqlib = require('amqplib');
 require('dotenv').config();
 
+// Amélioration possible 
+// Permettre à un utilisateur d’envoyer une opération de son choix au système
+// condition si process.argv != null ensuite check si op valable si oui en lance 
+
 const serverCredentials = process.env.SERVER_CREDENTIALS;
 
 const rabbitmq_url = 'amqp://' + serverCredentials;
