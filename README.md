@@ -44,7 +44,7 @@ Le tout orchestré par un serveur RabbitMQ qui gère les files d'attente et la d
                     │     │        │        │        │      │
                     └─────┼────────┼────────┼────────┼──────┘
                           ▼        ▼        ▼        ▼
-                    ┌─────┴──┐  ┌──┴───┐  ┌─┴────┐  ┌┴─────┐
+                    ┌─────┴──┐  ┌──┴────┐  ┌┴─────┐  ┌┴─────┐
                     │ Worker │  │Worker │  │Worker│  │Worker│
                     │ (add)  │  │(sub)  │  │(mul) │  │(div) │
                     └────────┘  └───────┘  └──────┘  └──────┘
@@ -63,8 +63,7 @@ Le tout orchestré par un serveur RabbitMQ qui gère les files d'attente et la d
 ### 1. Cloner le dépôt
 
 ```bash
-git clone <URL_DU_REPO>
-cd calcul-distribue-rabbitmq
+git clone Mathias002/Projet-RabbitMQ-calcul-distribue
 ```
 
 ### 2. Installer les dépendances
