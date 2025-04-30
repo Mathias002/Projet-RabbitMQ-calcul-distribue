@@ -55,12 +55,12 @@ async function send() {
   // Envoie un message toutes les 1 à 3 secondes(délai aléatoire)
   setInterval(async () => {
 
-    let n1 = '';
-    let n2 = '';
+    let n1 = null;
+    let n2 = null;
 
     if (n1_arg != null && n2_arg != null){
-      n1 = n1_arg
-      n2 = n2_arg
+      n1 = parseInt(n1_arg, 10);
+      n2 = parseInt(n2_arg, 10);
     }else{
       // Génère deux nombres aléatoires
       n1 = Math.floor(Math.random() * 100) + 1;
