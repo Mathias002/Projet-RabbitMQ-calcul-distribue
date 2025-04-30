@@ -131,7 +131,7 @@ Pour arrêter chaque composant, utilisez `Ctrl+C` dans le terminal correspondant
 - ✅ Indexation des opérations pour un suivi plus facile
 - ✅ Délai aléatoire entre les envois de requêtes (1-3 secondes)
 
-- ### Choix de calcul et des valeurs
+### Choix de calcul et des valeurs
 - ✅ Choix du type de calcul (add, mul, div, sub, all)
 - ✅ Choix des deux valeurs pour l'opération  
 Ces deux choix sont à faire dans les arguments du provider (voir lancement des composants ci-dessus)
