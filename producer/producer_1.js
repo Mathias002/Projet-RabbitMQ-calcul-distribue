@@ -15,6 +15,17 @@ const exchange = '002_calc_ops';
 // "add", "sub", "mul", "div"
 const op_arg = process.argv[2];
 
+let n1_arg = null;
+let n2_arg = null;
+
+if (op_arg != null){
+  if (process.argv[3] != null && process.argv[4] != null){
+    n1_arg = process.argv[3];
+    n2_arg = process.argv[4];
+  }
+
+}
+
 // // Vérification de l'opération dans les paramètres de la commande
 if (op_arg != null){
   if(!["add", "sub", "div", "mul", "all"].includes(op_arg)){
@@ -42,9 +53,18 @@ async function send() {
   // Envoie un message toutes les 1 à 3 secondes(délai aléatoire)
   setInterval(async () => {
 
-    // Génère deux nombres aléatoires
-    const n1 = Math.floor(Math.random() * 100) + 1;
-    const n2 = Math.floor(Math.random() * 100) + 1;
+    let n1 = '';
+    let n2 = '';
+
+    if (n1_arg != null && n2_arg != null){
+      n1 = n1_arg
+      n2 = n2_arg
+    }else{
+      // Génère deux nombres aléatoires
+      n1 = Math.floor(Math.random() * 100) + 1;
+      n2 = Math.floor(Math.random() * 100) + 1;
+    }
+    
 
     let op = '';
 
