@@ -9,8 +9,12 @@ const rabbitmq_url = 'amqp://' + serverCredentials;
 // "add", "sub", "mul", "div"
 const op = process.argv[2];
 
+const exchange = '002_calc_ops';
+
+const result_queue = '002_calc_results';
+
 // Initialisation d'une queue selon l'opération reçu
-const queue = `002_calc_${op}`;
+// const queue = `002_calc_${op}`;
 
 // Initialisation d'une variable channel global
 let channel;
@@ -21,6 +25,12 @@ if(!["add", "sub", "div", "mul"].includes(op)){
     process.exit(1);
 }
 
+const topicKey = `calc.${op}`;
+
+const topicKeyAll = `calc.all`;
+
+const queue = `002_queue_${op}`;
+
 async function playWorker(){
 
     // Connexion à rabbitmq
@@ -29,17 +39,25 @@ async function playWorker(){
     // Création du channel
     channel = await connection.createChannel();
 
-    // Assertion de la queue requestQueue
-    channel.assertQueue(queue, {
+    // Assertion de l'exchange
+    await channel.assertExchange(exchange, 'topic', {
+        durable: false
+    })
+
+    // Assertion de la queue de requête
+    await channel.assertQueue(queue, {
         durable: false
     });
 
-    // Suppression de la queue à l'arrêt
-    process.on('SIGINT', async () => {
-        await channel.cancel(queue)
-        await channel.deleteQueue(queue);
-        console.log(`Worker arrêter pour l'opération ${op}`);
-        process.exit(0);
+    // Bind entre la queue et l'exchange
+    await channel.bindQueue(queue, exchange, topicKey);
+
+    // Bind entre le queue et l'exchange pour all 
+    await channel.bindQueue(queue, exchange, topicKeyAll);
+    
+    // Assertion de la queue de résultat
+    await channel.assertQueue(result_queue, {
+        durable: false
     })
 
     console.log(`Worker prêt pour l'opération ${op}`);
@@ -73,7 +91,7 @@ async function consume(message){
         const resultJSON = { index, n1, n2, op, result };
 
         // Envoie du resultat à la queue sous forme de JSON
-        channel.sendToQueue('002_calc_results', Buffer.from(JSON.stringify(resultJSON)));
+        channel.sendToQueue(result_queue, Buffer.from(JSON.stringify(resultJSON)));
         
         // On display le resultat en console puis on envoie un accusé de reception à la queue
         console.log(`[${op}] Résultat du calcul [${index}] envoyé: `, resultJSON);
