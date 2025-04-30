@@ -1,4 +1,5 @@
 const ampqlib = require('amqplib');
+const askPassword = require('../security');
 require('dotenv').config();
 
 const serverCredentials = process.env.SERVER_CREDENTIALS;
@@ -100,7 +101,7 @@ async function consume(message){
     }
 }
 
-playWorker().catch(console.error);
+askPassword(() => playWorker().catch(console.error));
 
 
 

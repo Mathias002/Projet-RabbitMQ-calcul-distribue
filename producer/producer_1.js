@@ -1,4 +1,5 @@
 const ampqlib = require('amqplib');
+const askPassword = require('../security');
 require('dotenv').config();
 
 // Amélioration possible 
@@ -6,6 +7,7 @@ require('dotenv').config();
 // condition si process.argv != null ensuite check si op valable si oui en lance 
 
 const serverCredentials = process.env.SERVER_CREDENTIALS;
+const password = process.env.PASSWORD;
 
 const rabbitmq_url = 'amqp://' + serverCredentials;
 const operations = ['add', 'sub', 'mul', 'div', 'all'];
@@ -93,4 +95,4 @@ async function send() {
   }, Math.floor(Math.random() * 2000) + 1000);
 }
 
-send().catch(console.error);
+askPassword(() => send().catch(console.error));
