@@ -59,7 +59,7 @@ npm install
 
 ### 3. Configuration
 
-Créez un fichier `.env` à la racine du projet avec vos informations de connexion à RabbitMQ :
+Créez un fichier `.env` à la racine du projet avec vos informations de connexion à RabbitMQ et un mot de passe afin de pouvoir lancer les commandes dans le terminal :
 
 ```
 SERVER_CREDENTIALS=username:password@hostname:port/vhost
@@ -69,6 +69,8 @@ PASSWORD=monmotdepasse
 ### 4. Lancer les composants
 
 Ouvrez plusieurs terminaux pour lancer chaque composant :
+
+Un mot de passe vous sera demandé, renseignez le mot de passe que vous avez ajouté dans le fichier .env
 
 **Consumer (réception des résultats)**
 ```bash
@@ -92,16 +94,15 @@ node workers/worker_1.js div
 
 **Producer (génération des calculs)**
 ```bash
-# Provider avec calcul et valeurs aléatoires
+# Producer avec calcul et valeurs aléatoires
 node producer/producer_1.js
 
-# Provider avec valeurs aléatoires (le calcul peut être 'div', 'sub', 'add', 'mul' ou 'all')
+# Producer avec valeurs aléatoires (le calcul peut être 'div', 'sub', 'add', 'mul' ou 'all')
 node producer/producer_1.js add
 
-# Provider avec calcul et valeurs prédéfinis
+# Producer avec calcul et valeurs prédéfinis
 node producer/producer_1.js add 2 4
 ```
-
 
 ## 💡 Utilisation
 
@@ -136,7 +137,8 @@ Pour arrêter chaque composant, utilisez `Ctrl+C` dans le terminal correspondant
 ### Choix de calcul et des valeurs
 - ✅ Choix du type de calcul (add, mul, div, sub, all)
 - ✅ Choix des deux valeurs pour l'opération  
-Ces deux choix sont à faire dans les arguments du provider (voir lancement des composants ci-dessus)
+
+Ces deux choix sont à faire dans les arguments du producer (voir lancement des composants ci-dessus)
 
 ## 📚 Explication du code
 
