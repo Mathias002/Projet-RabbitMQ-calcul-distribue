@@ -15,8 +15,6 @@ const exchange = '002_calc_ops';
 // "add", "sub", "mul", "div"
 const op_arg = process.argv[2];
 
-console.log(op_arg);
-
 // // Vérification de l'opération dans les paramètres de la commande
 if (op_arg != null){
   if(!["add", "sub", "div", "mul", "all"].includes(op_arg)){
