@@ -1,4 +1,5 @@
 const ampqlib = require('amqplib');
+const askPassword = require('../security');
 require('dotenv').config();
 
 
@@ -39,4 +40,4 @@ function consume(message){
     }
 }
 
-receiveResults().catch(console.error);
+askPassword(() => receiveResults().catch(console.error));
