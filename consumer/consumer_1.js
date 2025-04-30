@@ -5,7 +5,7 @@ require('dotenv').config();
 const serverCredentials = process.env.SERVER_CREDENTIALS;
 
 const rabbitmq_url = 'amqp://' + serverCredentials;
-const queue = '002_calc_results';
+const result_queue = '002_calc_results';
 
 
 let channel;
@@ -19,19 +19,12 @@ async function receiveResults() {
     channel = await connection.createChannel();
 
     // Assertion sur l'existence de la queue
-    await channel.assertQueue(queue, { 
+    await channel.assertQueue(result_queue, { 
         durable: false
     });
 
-    process.on('SIGINT', async () => {
-        await channel.cancel(queue)
-        await channel.deleteQueue(queue);
-        console.log(`Le consumer a arrêter la lecture des résultats`);
-        process.exit(0);
-    })
-
     // Reception du message 
-    channel.consume(queue, consume);
+    channel.consume(result_queue, consume);
 
     console.log('En attente de résultats...');
     console.log('');
