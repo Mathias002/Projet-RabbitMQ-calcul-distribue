@@ -11,6 +11,20 @@ const rabbitmq_url = 'amqp://' + serverCredentials;
 const operations = ['add', 'sub', 'mul', 'div', 'all'];
 const exchange = '002_calc_ops';
 
+// Récupération de l'op dans la comande du terminal 
+// "add", "sub", "mul", "div"
+const op_arg = process.argv[2];
+
+console.log(op_arg);
+
+// // Vérification de l'opération dans les paramètres de la commande
+if (op_arg != null){
+  if(!["add", "sub", "div", "mul", "all"].includes(op_arg)){
+    console.log("Type d'opération non valide. Veuillez utiliser : add, sub, div, mul, all");
+    process.exit(1);
+  }
+}
+
 // Ajout d'un index pour identifier l'opération
 let index = 1;
 
@@ -34,8 +48,15 @@ async function send() {
     const n1 = Math.floor(Math.random() * 100) + 1;
     const n2 = Math.floor(Math.random() * 100) + 1;
 
-    // Sélectionne une opération au hasard
-    const op = operations[Math.floor(Math.random() * operations.length)];
+    let op = '';
+
+    if (op_arg == null){
+      // Sélectionne une opération au hasard
+      op = operations[Math.floor(Math.random() * operations.length)];
+    }else{
+      op = op_arg;
+    }
+
 
     console.log('Opération tirée au sort : ' + op);
 
@@ -44,7 +65,7 @@ async function send() {
     // On incrémente l'index
     index ++;
 
-    // Si l'opération est "all", envoie à toutes les queues
+    // Envoyer l'opération à l'exchange
     const topicKey = `calc.${op}`;
     channel.publish(exchange, topicKey, Buffer.from(msg))
     console.log(`[${ topicKey }] Envoyé: ${ msg }`);
