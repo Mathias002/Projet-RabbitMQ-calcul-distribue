@@ -18,13 +18,14 @@ Ce projet répond à une demande de l'institut de physique nucléaire NGI qui so
 
 Le système permet :
 - L'envoi de requêtes de calcul automatisées
-- La distribution des tâches à des workers spécialisés
+- La distribution des tâches à des workers spécialisés via des exchanges
 - L'exécution des calculs (addition, soustraction, multiplication, division)
 - La récupération et l'affichage des résultats
 
-[IMAGE: Schéma général présentant l'objectif du projet - une architecture distribuée avec des clients envoyant des requêtes et recevant des résultats via RabbitMQ]
-
 ## 🏗️ Architecture du système
+
+Schéma de notre architecture RabbitMQ disponible à cette adresse : 
+[Schéma gitmind](https://gitmind.com/app/docs/feycer5d)
 
 Notre système est composé de trois types de composants principaux :
 
@@ -33,22 +34,6 @@ Notre système est composé de trois types de composants principaux :
 3. **Consumer** : Récupère les résultats des calculs et les affiche
 
 Le tout orchestré par un serveur RabbitMQ qui gère les files d'attente et la distribution des messages.
-
-```
-┌─────────────┐     ┌───────────────────────────────────────┐     ┌─────────────┐
-│             │     │              RabbitMQ                 │     │             │
-│  Producer   ├────►│                                       │◄────┤  Consumer   │
-│             │     │  ┌─────┐  ┌─────┐  ┌─────┐  ┌─────┐   │     │             │
-└─────────────┘     │  │ add │  │ sub │  │ mul │  │ div │   │     └─────────────┘
-                    │  └──┬──┘  └──┬──┘  └──┬──┘  └──┬──┘   │
-                    │     │        │        │        │      │
-                    └─────┼────────┼────────┼────────┼──────┘
-                          ▼        ▼        ▼        ▼
-                    ┌─────┴──┐  ┌──┴────┐  ┌┴─────┐  ┌┴─────┐
-                    │ Worker │  │Worker │  │Worker│  │Worker│
-                    │ (add)  │  │(sub)  │  │(mul) │  │(div) │
-                    └────────┘  └───────┘  └──────┘  └──────┘
-```
 
 ## 🔧 Prérequis
 
@@ -78,11 +63,6 @@ Créez un fichier `.env` à la racine du projet avec vos informations de connexi
 
 ```
 SERVER_CREDENTIALS=username:password@hostname:port/vhost
-```
-
-Exemple avec un serveur local :
-```
-SERVER_CREDENTIALS=guest:guest@localhost:5672
 ```
 
 ### 4. Lancer les composants
@@ -122,7 +102,7 @@ Une fois le système en place et tous les composants démarrés :
 2. Les workers vont traiter les calculs (avec un délai aléatoire de 5 à 15 secondes pour simuler un calcul complexe).
 3. Le consumer va afficher les résultats des calculs au fur et à mesure qu'ils sont disponibles.
 
-Pour arrêter proprement chaque composant, utilisez `Ctrl+C` dans le terminal correspondant.
+Pour arrêter chaque composant, utilisez `Ctrl+C` dans le terminal correspondant.
 
 ## ✨ Fonctionnalités implémentées
 
@@ -142,7 +122,6 @@ Pour arrêter proprement chaque composant, utilisez `Ctrl+C` dans le terminal co
 ### Autres améliorations
 - ✅ Indexation des opérations pour un suivi plus facile
 - ✅ Délai aléatoire entre les envois de requêtes (1-3 secondes)
-- ✅ Gestion propre de l'arrêt des composants (nettoyage des queues)
 
 ## 📚 Explication du code
 
@@ -151,22 +130,31 @@ Pour arrêter proprement chaque composant, utilisez `Ctrl+C` dans le terminal co
 Le producer est responsable de la génération des requêtes de calcul :
 
 - Il se connecte au serveur RabbitMQ
-- Il vérifie l'existence des queues pour chaque type d'opération
+- Il crée un exchange de type "topic" nommé '002_calc_ops'
 - Il génère des requêtes à intervalles aléatoires (1-3 secondes)
 - Il sélectionne aléatoirement une opération (add, sub, mul, div, all)
-- Il envoie la requête à la queue appropriée, ou à toutes les queues dans le cas de l'opération "all"
+- Il publie la requête sur l'exchange avec une clé de routage appropriée (calc.add, calc.sub, etc.)
 
 Points clés :
+- L'utilisation d'un exchange de type "topic" permet un routage plus flexible des messages
 - Chaque requête contient un index unique pour faciliter le suivi
-- Le format des messages est JSON pour une manipulation facile
-- Les opérations "all" sont distribuées à tous les workers simultanément
+- Le format des messages est JSON pour une manipulation plus simple
+- Les clés de routage suivent le format `calc.{opération}` 
+- L'opération "all" utilise la clé de routage `calc.all`
 
 ### worker_1.js
 
 Les workers sont spécialisés par type d'opération :
 
 - Un worker est lancé avec un paramètre indiquant son type (add, sub, mul, div)
-- Il se connecte au serveur RabbitMQ et écoute sur la queue correspondant à son type
+
+- Il se connecte au serveur RabbitMQ et configure :
+  - L'exchange de type "topic" 
+  - Une queue spécifique pour son type d'opération
+  - Des liaisons (bindings) entre sa queue et l'exchange pour:
+    - Sa propre opération (calc.add, calc.sub, etc.)
+    - L'opération "all" (calc.all)
+
 - Quand il reçoit une requête, il :
   - Simule un temps de calcul (5-15 secondes)
   - Effectue l'opération demandée
@@ -174,7 +162,10 @@ Les workers sont spécialisés par type d'opération :
   - Acquitte le message pour informer RabbitMQ que le traitement est terminé
 
 Points clés :
-- Chaque worker ne traite que les messages de sa spécialité
+
+- L'architecture topic permet au worker de s'abonner à plusieurs types de messages
+- Chaque worker crée sa propre queue avec un nom basé sur son type d'opération
+- Les workers écoutent à la fois les messages spécifiques à leur opération et les messages "all"
 - Le délai de calcul aléatoire simule des opérations complexes
 - Les résultats conservent toutes les informations de la requête originale
 
@@ -183,13 +174,15 @@ Points clés :
 Le consumer est chargé de récupérer et d'afficher les résultats :
 
 - Il se connecte au serveur RabbitMQ
-- Il écoute sur la queue des résultats
+- Il s'assure de l'existence de la queue des résultats ('002_calc_results')
+- Il écoute sur cette queue pour recevoir les résultats des calculs
 - Quand il reçoit un résultat, il l'affiche dans la console
 - Il acquitte le message pour informer RabbitMQ que le résultat a été traité
 
 Points clés :
-- Simple et efficace, il se contente d'afficher les résultats
+- Objectif simple, il se contente d'afficher les résultats
 - L'index permet de suivre facilement la correspondance avec les requêtes
+- Toutes les opérations envoient leurs résultats à la même queue, centralisant ainsi la collecte des résultats
 
 ## 🔍 Améliorations possibles
 
@@ -208,3 +201,6 @@ Voici quelques pistes d'amélioration pour le projet :
 - [Ludovic Marie]
 - [Valérie Song]
 - [Mathias Mousset]
+
+
+Nous vous souhaitons une bonne correction
