@@ -91,8 +91,16 @@ node workers/worker_1.js div
 
 **Producer (génération des calculs)**
 ```bash
+# Provider avec calcul et valeurs aléatoires
 node producer/producer_1.js
+
+# Provider avec valeurs aléatoires (le calcul peut être 'div', 'sub', 'add', 'mul' ou 'all')
+node producer/producer_1.js add
+
+# Provider avec calcul et valeurs prédéfinis
+node producer/producer_1.js add 2 4
 ```
+
 
 ## 💡 Utilisation
 
@@ -122,6 +130,11 @@ Pour arrêter chaque composant, utilisez `Ctrl+C` dans le terminal correspondant
 ### Autres améliorations
 - ✅ Indexation des opérations pour un suivi plus facile
 - ✅ Délai aléatoire entre les envois de requêtes (1-3 secondes)
+
+- ### Choix de calcul et des valeurs
+- ✅ Choix du type de calcul (add, mul, div, sub, all)
+- ✅ Choix des deux valeurs pour l'opération  
+Ces deux choix sont à faire dans les arguments du provider (voir lancement des composants ci-dessus)
 
 ## 📚 Explication du code
 
