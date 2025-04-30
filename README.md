@@ -91,27 +91,27 @@ Ouvrez plusieurs terminaux pour lancer chaque composant :
 
 **Consumer (réception des résultats)**
 ```bash
-node consumer_1.js
+node consumer/consumer_1.js
 ```
 
 **Workers (un terminal par worker)**
 ```bash
 # Worker pour l'addition
-node worker_1.js add
+node workers/worker_1.js add
 
 # Worker pour la soustraction
-node worker_1.js sub
+node workers/worker_1.js sub
 
 # Worker pour la multiplication
-node worker_1.js mul
+node workers/worker_1.js mul
 
 # Worker pour la division
-node worker_1.js div
+node workers/worker_1.js div
 ```
 
 **Producer (génération des calculs)**
 ```bash
-node producer_1.js
+node producer/producer_1.js
 ```
 
 ## 💡 Utilisation
