@@ -63,6 +63,7 @@ Créez un fichier `.env` à la racine du projet avec vos informations de connexi
 
 ```
 SERVER_CREDENTIALS=username:password@hostname:port/vhost
+PASSWORD=monmotdepasse
 ```
 
 ### 4. Lancer les composants
@@ -130,6 +131,7 @@ Pour arrêter chaque composant, utilisez `Ctrl+C` dans le terminal correspondant
 ### Autres améliorations
 - ✅ Indexation des opérations pour un suivi plus facile
 - ✅ Délai aléatoire entre les envois de requêtes (1-3 secondes)
+- ✅ Authentification par mot de passe pour accéder au producer, aux workers et au consumer
 
 ### Choix de calcul et des valeurs
 - ✅ Choix du type de calcul (add, mul, div, sub, all)
@@ -196,6 +198,21 @@ Points clés :
 - Objectif simple, il se contente d'afficher les résultats
 - L'index permet de suivre facilement la correspondance avec les requêtes
 - Toutes les opérations envoient leurs résultats à la même queue, centralisant ainsi la collecte des résultats
+
+### security.js
+
+Ce module gère l’authentification par mot de passe avant d’exécuter un composant (producer, worker ou consumer) :
+
+- Utilise le module readline pour lire l'entrée utilisateur de manière sécurisée
+- Masque le mot de passe saisi dans la console
+- Vérifie si le mot de passe correspond à celui défini dans .env (PASSWORD)
+- Si la validation est réussie, la fonction callback est appelée (lancement du script)
+- Sinon, le processus est arrêté
+
+Exemple de variable à ajouter dans le fichier .env:
+```
+PASSWORD=monmotdepasse
+```
 
 ## 🔍 Améliorations possibles
 
